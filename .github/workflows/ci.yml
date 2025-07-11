@@ -1,0 +1,76 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Lint
+        run: ruff check backend/
+      - name: Run Unit Tests
+        run: pytest backend/tests/unit/
+      - name: Run Integration Tests
+        run: pytest backend/tests/integration
+      - name: Run SAST Scan
+        run: | # Add your SAST tool command here, e.g., bandit -r backend/
+
+  build-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r worker/requirements.txt
+          pip install pytest
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Lint
+        run: ruff check worker/
+      - name: Run Unit Tests
+        run: pytest worker/tests/unit/
+      - name: Run Integration Tests
+        run: | # Placeholder for worker integration tests
+        # pytest worker/tests/integration
+      - name: Run SAST Scan
+        run: | # Add your SAST tool command here, e.g., bandit -r worker/
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+        working-directory: frontend
+      - name: Fix permissions
+        run: chmod +x -R node_modules/.bin
+        working-directory: frontend
+      - name: Lint
+        run: npm run lint
+        working-directory: frontend
+      - name: Build
+        run: npm run build
+        working-directory: frontend
+      - name: Run End-to-End Tests
+        run: | # Add your frontend E2E tests here, e.g., cypress run
+      - name: Run DAST Scan
+        run: | # Add your DAST tool command here, e.g., owasp-zap-cli scan

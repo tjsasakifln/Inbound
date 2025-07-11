@@ -1,0 +1,1 @@
+fix(ci): ajustes nos lint e configuração eslint
