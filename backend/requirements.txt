@@ -18,3 +18,7 @@ google-auth-oauthlib
 httpx
 fastapi-limiter
 aiocache
+opentelemetry-instrumentation-celery
+billiard
+celery
+openai

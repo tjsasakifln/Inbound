@@ -1,11 +1,17 @@
+import sys
+sys.path.append("/app")
+
 import asyncio
 import os
-from sqlalchemy.orm import Session
-from backend.app.database import SessionLocal, engine, Base
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy import create_engine
+from backend.app.database import Base
 from backend.app import scorer, models
 
 # Ensure tables are created
+engine = create_engine(os.getenv("DATABASE_URL"))
 Base.metadata.create_all(bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 async def run_demo():
     print("\n--- Starting Functional Demo ---")
@@ -47,8 +53,6 @@ async def run_demo():
         print(f"Score: {lead.score}")
         print(f"Stage: {lead.stage}")
         print(f"Created At: {lead.created_at}")
-        print("------------------------
-")
 
     except Exception as e:
         print(f"Error during demonstration: {e}")

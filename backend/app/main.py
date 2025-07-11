@@ -47,13 +47,12 @@ async def startup():
 
 @app.middleware("http")
 async def add_correlation_id(request: Request, call_next):
-    correlation_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
-    with structlog.contextvars.bind_contextvars(correlation_id=correlation_id):
-        logger.info("Request started", method=request.method, url=request.url)
-        response = await call_next(request)
-        response.headers["X-Correlation-ID"] = correlation_id
-        logger.info("Request finished", status_code=response.status_code)
-        return response
+    correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
+    response = await call_next(request)
+    response.headers["X-Correlation-ID"] = correlation_id
+    return response
 
 @app.post("/token", dependencies=[Depends(RateLimiter(times=5, seconds=60))]) # 5 requests per minute
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
